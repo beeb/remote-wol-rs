@@ -2,37 +2,32 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
+        use std::sync::Arc;
+
+        use anyhow::Result;
         use leptos::*;
         use remote_wol::app::*;
-        use actix_files::{Files};
-        use actix_web::*;
-        use leptos_actix::{LeptosRoutes, generate_route_list};
+        use axum::{routing::post, Router, extract::Extension};
+        use leptos_axum::{LeptosRoutes, generate_route_list, handle_server_fns};
 
-        #[get("/style.css")]
-        async fn css() -> impl Responder {
-            actix_files::NamedFile::open_async("./style/output.css").await
-        }
 
-        #[actix_web::main]
-        async fn main() -> std::io::Result<()> {
+        #[tokio::main]
+        async fn main() -> Result<()> {
             let conf = get_configuration(Some("Cargo.toml")).await.unwrap();
-            let addr = conf.leptos_options.site_address;
+            let addr = conf.leptos_options.site_address.clone();
             // Generate the list of routes in your Leptos App
-            let routes = generate_route_list(|cx| view! { cx, <App/> });
+            let routes = generate_route_list(|cx| view! { cx, <App/> }).await;
+            let leptos_options = conf.leptos_options;
 
-            HttpServer::new(move || {
-                let leptos_options = &conf.leptos_options;
-                let site_root = &leptos_options.site_root;
+            let app = Router::new()
+                .route("/api/*fn_name", post(handle_server_fns))
+                .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
+                .layer(Extension(Arc::new(leptos_options)));
 
-                App::new()
-                    .route("/api/{tail:.*}", leptos_actix::handle_server_fns())
-                    .leptos_routes(leptos_options.to_owned(), routes.to_owned(), |cx| view! { cx, <App/> })
-                    .service(Files::new("/", site_root))
-                //.wrap(middleware::Compress::default())
-            })
-            .bind(&addr)?
-            .run()
-            .await
+            log!("listening on {}", addr);
+            axum::Server::bind(&addr)
+                .serve(app.into_make_service())
+                .await.map_err(|e| e.into())
         }
     }
     else {
