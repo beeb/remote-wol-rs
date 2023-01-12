@@ -7,7 +7,8 @@ cfg_if! {
         use anyhow::Result;
         use leptos::*;
         use remote_wol::app::*;
-        use axum::{routing::post, Router, extract::Extension};
+        use axum::{body::{boxed, Full}, handler::HandlerWithoutStateExt, routing::{get, post}, Router, extract::Extension, response::{Html, IntoResponse, Response}, http::{header, StatusCode, Uri}};
+        use rust_embed::RustEmbed;
         use leptos_axum::{LeptosRoutes, generate_route_list, handle_server_fns};
 
 
@@ -21,13 +22,54 @@ cfg_if! {
 
             let app = Router::new()
                 .route("/api/*fn_name", post(handle_server_fns))
+                .route_service("/pkg/*file", static_handler.into_service())
                 .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
+                .fallback_service(get(not_found))
                 .layer(Extension(Arc::new(leptos_options)));
 
             log!("listening on {}", addr);
             axum::Server::bind(&addr)
                 .serve(app.into_make_service())
                 .await.map_err(|e| e.into())
+        }
+
+
+        async fn static_handler(uri: Uri) -> impl IntoResponse {
+            let path = uri.path().trim_start_matches('/').to_string();
+
+            /* if path.starts_with("target/site/") {
+                path = path.replace("target/site", "");
+            } */
+
+            StaticFile(path)
+        }
+
+        async fn not_found() -> Html<&'static str> {
+            Html("<h1>404</h1><p>Not Found</p>")
+        }
+
+        #[derive(RustEmbed)]
+        #[folder = "target/site/"]
+        struct Asset;
+
+        pub struct StaticFile<T>(pub T);
+
+        impl<T> IntoResponse for StaticFile<T>
+        where
+        T: Into<String>,
+        {
+            fn into_response(self) -> Response {
+                let path = self.0.into();
+
+                match Asset::get(path.as_str()) {
+                Some(content) => {
+                    let body = boxed(Full::from(content.data));
+                    let mime = mime_guess::from_path(path).first_or_octet_stream();
+                    Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
+                }
+                None => Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("404"))).unwrap(),
+                }
+            }
         }
     }
     else {

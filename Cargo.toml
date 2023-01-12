@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-anyhow = "1"
+anyhow = { version = "1", optional = true }
 axum = { version = "0.6", optional = true }
 console_error_panic_hook = "0.1"
 console_log = "0.2"
@@ -19,6 +19,8 @@ leptos_meta = { git = "https://github.com/leptos-rs/leptos", default-features = 
 leptos_axum = { git = "https://github.com/leptos-rs/leptos", optional = true }
 leptos_router = { git = "https://github.com/leptos-rs/leptos", default-features = false }
 log = "0.4"
+mime_guess = { version = "2", optional = true }
+rust-embed = { version = "6", optional = true }
 simple_logger = "4"
 tokio = { version = "1", features = ["full"], optional = true }
 wasm-bindgen = "0.2"
@@ -26,8 +28,11 @@ wasm-bindgen = "0.2"
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
 ssr = [
+  "dep:anyhow",
   "dep:axum",
   "dep:leptos_axum",
+  "dep:mime_guess",
+  "dep:rust-embed",
   "dep:tokio",
   "leptos/ssr",
   "leptos_meta/ssr",
