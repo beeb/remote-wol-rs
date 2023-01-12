@@ -37,8 +37,8 @@ cfg_if! {
         async fn static_handler(uri: Uri) -> impl IntoResponse {
             let mut path = uri.path().trim_start_matches('/').to_string();
 
-            if path.starts_with("pkg/") {
-                path = path.replace("pkg/", "");
+            if path.ends_with("_bg.wasm") {
+                path = path.replace("_bg.wasm", ".wasm");
             }
 
             StaticFile(path)
@@ -50,6 +50,7 @@ cfg_if! {
 
         #[derive(RustEmbed)]
         #[folder = "target/site/pkg/"]
+        #[prefix = "pkg/"]
         struct Asset;
 
         pub struct StaticFile<T>(pub T);
