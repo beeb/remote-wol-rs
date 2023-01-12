@@ -35,9 +35,7 @@ cfg_if! {
 
 
         async fn static_handler(uri: Uri) -> impl IntoResponse {
-            log!("static_handler: {:?}", uri);
             let mut path = uri.path().trim_start_matches('/').to_string();
-            log!("path: {:?}", path);
 
             if path.starts_with("pkg/") {
                 path = path.replace("pkg/", "");
