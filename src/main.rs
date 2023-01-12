@@ -35,11 +35,13 @@ cfg_if! {
 
 
         async fn static_handler(uri: Uri) -> impl IntoResponse {
-            let path = uri.path().trim_start_matches('/').to_string();
+            log!("static_handler: {:?}", uri);
+            let mut path = uri.path().trim_start_matches('/').to_string();
+            log!("path: {:?}", path);
 
-            /* if path.starts_with("target/site/") {
-                path = path.replace("target/site", "");
-            } */
+            if path.starts_with("pkg/") {
+                path = path.replace("pkg/", "");
+            }
 
             StaticFile(path)
         }
@@ -49,7 +51,7 @@ cfg_if! {
         }
 
         #[derive(RustEmbed)]
-        #[folder = "target/site/"]
+        #[folder = "dist/"]
         struct Asset;
 
         pub struct StaticFile<T>(pub T);
