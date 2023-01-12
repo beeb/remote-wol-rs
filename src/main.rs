@@ -51,7 +51,7 @@ cfg_if! {
         }
 
         #[derive(RustEmbed)]
-        #[folder = "dist/"]
+        #[folder = "target/site/pkg/"]
         struct Asset;
 
         pub struct StaticFile<T>(pub T);
