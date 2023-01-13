@@ -17,9 +17,10 @@ use rust_embed::RustEmbed;
 use crate::app::*;
 
 pub async fn server_start() -> Result<()> {
-    // set the LEPTOS_OUTPUT_NAME environment variable
-    env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol");
     let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
+    if config_file.is_none() {
+        env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol"); // required for constructing the config
+    }
     let conf = get_configuration(config_file).await?;
     let addr = conf.leptos_options.site_address;
     // Generate the list of routes in your Leptos App
