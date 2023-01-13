@@ -14,8 +14,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/remote_wol.css"/>
 
-        // sets the document title
-        <Title text="Welcome to Leptos"/>
+        <Title text="Remote Wake-on-LAN" />
 
         // content for this welcome page
         <Router>
