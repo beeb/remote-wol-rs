@@ -2,7 +2,7 @@
 use anyhow::Result;
 
 #[cfg(feature = "ssr")]
-use remote_wol::ssr::server_start;
+use remote_wol::server::server_start;
 
 #[cfg(feature = "ssr")]
 #[tokio::main]

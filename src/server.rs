@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{env, path::Path, sync::Arc};
 
 use anyhow::Result;
 use axum::{
@@ -17,8 +17,11 @@ use rust_embed::RustEmbed;
 use crate::app::*;
 
 pub async fn server_start() -> Result<()> {
-    let conf = get_configuration(Some("Cargo.toml")).await.unwrap();
-    let addr = conf.leptos_options.site_address.clone();
+    // set the LEPTOS_OUTPUT_NAME environment variable
+    env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol");
+    let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
+    let conf = get_configuration(config_file).await?;
+    let addr = conf.leptos_options.site_address;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(|cx| view! { cx, <App/> }).await;
     let leptos_options = conf.leptos_options;

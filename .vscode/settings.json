@@ -17,5 +17,6 @@
   },
   "css.validate": false,
   "rust-analyzer.cargo.features": ["ssr"],
-  "rust-analyzer.rustfmt.extraArgs": ["+nightly"]
+  "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
+  "rust-analyzer.server.extraEnv": { "RUSTUP_TOOLCHAIN": "nightly" }
 }
