@@ -7,7 +7,7 @@ use axum::{
     handler::HandlerWithoutStateExt,
     http::{header, StatusCode, Uri},
     response::{Html, IntoResponse, Response},
-    routing::{get, post},
+    routing::post,
     Router,
 };
 use leptos::*;
@@ -29,9 +29,9 @@ pub async fn server_start() -> Result<()> {
 
     let app = Router::new()
         .route("/api/*fn_name", post(handle_server_fns))
-        .route_service("/pkg/*file", static_handler.into_service())
+        .route_service("/pkg/*file", static_handler.into_service()) // anything starting with /pkg gets routed to rust-embed
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
-        .fallback_service(get(not_found))
+        .fallback(fallback)
         .layer(Extension(Arc::new(leptos_options)));
 
     log!("listening on {}", addr);
@@ -52,8 +52,8 @@ async fn static_handler(uri: Uri) -> impl IntoResponse {
     StaticFile(path)
 }
 
-async fn not_found() -> Html<&'static str> {
-    Html("<h1>404</h1><p>Not Found</p>")
+async fn fallback() -> (StatusCode, Html<&'static str>) {
+    (StatusCode::NOT_FOUND, Html("<h1>404</h1><p>Not Found</p>"))
 }
 
 /// Embed assets into binary
