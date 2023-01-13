@@ -11,13 +11,10 @@ anyhow = { version = "1", optional = true }
 axum = { version = "0.6", optional = true }
 console_error_panic_hook = "0.1"
 console_log = "0.2"
-cfg-if = "1"
-leptos = { git = "https://github.com/leptos-rs/leptos", default-features = false, features = [
-  "serde",
-] }
-leptos_meta = { git = "https://github.com/leptos-rs/leptos", default-features = false }
-leptos_axum = { git = "https://github.com/leptos-rs/leptos", optional = true }
-leptos_router = { git = "https://github.com/leptos-rs/leptos", default-features = false }
+leptos = { version = "0.1", default-features = false, features = ["serde"] }
+leptos_meta = { version = "0.1", default-features = false }
+leptos_axum = { version = "0.1", optional = true }
+leptos_router = { version = "0.1", default-features = false }
 log = "0.4"
 mime_guess = { version = "2", optional = true }
 rust-embed = { version = "6", features = ["include-exclude"], optional = true }
