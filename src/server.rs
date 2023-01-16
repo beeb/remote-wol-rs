@@ -42,13 +42,7 @@ pub async fn server_start() -> Result<()> {
 }
 
 async fn static_handler(uri: Uri) -> impl IntoResponse {
-    let mut path = uri.path().trim_start_matches('/').to_string();
-
-    // fix for leptos loading remote_wol_bg.wasm instead of remote_wol.wasm from the javascript
-    if path.ends_with("_bg.wasm") {
-        path = path.replace("_bg.wasm", ".wasm");
-    }
-
+    let path = uri.path().trim_start_matches('/').to_string();
     StaticFile(path)
 }
 
