@@ -1,6 +1,6 @@
-use std::{env, path::Path, sync::Arc};
+use std::{env, net::IpAddr, path::Path, sync::Arc};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use axum::{
     body::{boxed, Full},
     extract::Extension,
@@ -13,10 +13,53 @@ use axum::{
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
 use rust_embed::RustEmbed;
+use wol::MacAddr;
 
-use crate::app::*;
+use crate::{app::*, cli::Args};
 
-pub async fn server_start() -> Result<()> {
+struct Settings {
+    mac_address: MacAddr,
+    passphrase: String,
+    ip_address: Option<IpAddr>,
+}
+
+fn parse_args(args: Args) -> Result<Settings> {
+    match args
+        .site_addr
+        .or_else(|| env::var("LEPTOS_SITE_ADDRESS").ok())
+    {
+        Some(site_addr) => env::set_var("LEPTOS_SITE_ADDRESS", site_addr),
+        None => {}
+    };
+
+    let ip_address = args.ip_address.or_else(|| env::var("WOL_IP_ADDRESS").ok());
+    let ip_address: Option<IpAddr> = match ip_address {
+        Some(ip) => Some(ip.parse()?),
+        None => None,
+    };
+
+    let mac_address: MacAddr = args
+        .mac_address
+        .or_else(|| env::var("WOL_MAC_ADDRESS").ok())
+        .ok_or_else(|| anyhow!("MAC address not set"))?
+        .parse()
+        .map_err(|_| anyhow!("Invalid MAC address syntax"))?;
+
+    let passphrase = args
+        .passphrase
+        .or_else(|| env::var("WOL_PASSPHRASE").ok())
+        .ok_or_else(|| anyhow!("passphrase not set"))?;
+
+    Ok(Settings {
+        mac_address,
+        passphrase,
+        ip_address,
+    })
+}
+
+pub async fn server_start(args: Args) -> Result<()> {
+    let settings = parse_args(args)?;
+
     let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
     if config_file.is_none() {
         env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol"); // required for constructing the config

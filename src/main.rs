@@ -2,12 +2,16 @@
 use anyhow::Result;
 
 #[cfg(feature = "ssr")]
-use remote_wol::server::server_start;
+use clap::Parser;
+
+#[cfg(feature = "ssr")]
+use remote_wol::{cli::Args, server::server_start};
 
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() -> Result<()> {
-    server_start().await
+    let args = Args::parse();
+    server_start(args).await
 }
 
 #[cfg(not(feature = "ssr"))]

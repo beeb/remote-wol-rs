@@ -1,5 +1,7 @@
 [package]
 name = "remote_wol"
+author = "Valentin Bersier <vbersier@gmail.com>"
+description = "A utility to wake up a local computer remotely using a web interface."
 version = "0.1.0"
 edition = "2021"
 
@@ -9,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 anyhow = { version = "1", optional = true }
 axum = { version = "0.6", optional = true }
+clap = { version = "4", optional = true, features = ["derive"] }
 console_error_panic_hook = "0.1"
 console_log = "0.2"
 leptos = { version = "0.1", default-features = false, features = ["serde"] }
@@ -21,16 +24,19 @@ rust-embed = { version = "6", features = ["include-exclude"], optional = true }
 simple_logger = "4"
 tokio = { version = "1", features = ["full"], optional = true }
 wasm-bindgen = "0.2"
+wol-rs = { version = "1", optional = true }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
 ssr = [
   "dep:anyhow",
   "dep:axum",
+  "dep:clap",
   "dep:leptos_axum",
   "dep:mime_guess",
   "dep:rust-embed",
   "dep:tokio",
+  "dep:wol-rs",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
