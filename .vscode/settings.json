@@ -16,7 +16,5 @@
     "strings": true
   },
   "css.validate": false,
-  "rust-analyzer.cargo.features": ["ssr"],
-  "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
-  "rust-analyzer.server.extraEnv": { "RUSTUP_TOOLCHAIN": "nightly" }
+  "rust-analyzer.cargo.features": "all"
 }
