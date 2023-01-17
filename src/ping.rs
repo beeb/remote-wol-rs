@@ -1,7 +1,7 @@
 //! Ping a device with ICMP packets
 use std::net::IpAddr;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use core::time::Duration;
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
 

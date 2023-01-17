@@ -74,7 +74,8 @@ pub async fn server_start(args: Args) -> Result<()> {
     let app = Router::new()
         .route("/api/ping", get(ping_handler))
         .route("/api/*fn_name", post(handle_server_fns))
-        .route_service("/pkg/*file", static_handler.into_service()) // anything starting with /pkg gets routed to rust-embed
+        .route_service("/favicon.ico", static_handler.into_service())
+        .route_service("/pkg/*file", static_handler.into_service())
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
         .fallback(fallback)
         .layer(Extension(Arc::new(leptos_options)))
@@ -123,11 +124,13 @@ async fn fallback() -> (StatusCode, Html<&'static str>) {
 }
 
 /// Embed assets into binary
+#[derive(RustEmbed)]
+#[folder = "target/site/"]
+struct Asset;
 
 #[derive(RustEmbed)]
-#[folder = "target/site/pkg/"]
-#[prefix = "pkg/"]
-struct Asset;
+#[folder = "assets/"]
+struct PublicAsset;
 
 pub struct StaticFile<T>(pub T);
 
@@ -138,7 +141,7 @@ where
     fn into_response(self) -> Response {
         let path = self.0.into();
 
-        match Asset::get(path.as_str()) {
+        match Asset::get(path.as_str()).or_else(|| PublicAsset::get(path.as_str())) {
             Some(content) => {
                 let body = boxed(Full::from(content.data));
                 let mime = mime_guess::from_path(path).first_or_octet_stream();

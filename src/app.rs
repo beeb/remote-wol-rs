@@ -10,6 +10,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         cx,
 
         <Stylesheet id="leptos" href="/pkg/remote_wol.css"/>
+        <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
         <Title text="Remote Wake-on-LAN" />
         <Router>
             <main>
