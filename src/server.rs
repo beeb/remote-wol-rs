@@ -90,18 +90,27 @@ pub async fn server_start(args: Args) -> Result<()> {
 #[derive(Serialize)]
 struct PingResponse {
     success: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
 }
 
 async fn ping_handler(Extension(settings): Extension<Arc<Settings>>) -> impl IntoResponse {
     let Some(ip_address) = settings.ip_address else {
-        return Json(PingResponse { success: false });
+        return Json(PingResponse { success: false, error: None });
     };
-    let pinger = Pinger::new().expect("Failed to initialize pinger");
+    let Ok(pinger) = Pinger::new() else {
+        // probably due to lack of permissions
+        // ping needs root or CAP_NET_RAW capability set on the binary
+        return Json(PingResponse { success: false, error: Some("Operation not permitted".to_string()) });
+    };
     let success = match pinger.ping(ip_address, None).await {
         Ok(_) => true,
         Err(_) => false,
     };
-    return Json(PingResponse { success });
+    return Json(PingResponse {
+        success,
+        error: None,
+    });
 }
 
 async fn static_handler(uri: Uri) -> impl IntoResponse {
