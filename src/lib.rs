@@ -3,6 +3,8 @@ pub mod app;
 #[cfg(feature = "ssr")]
 pub mod cli;
 #[cfg(feature = "ssr")]
+pub mod ping;
+#[cfg(feature = "ssr")]
 pub mod server;
 
 #[cfg(feature = "hydrate")]

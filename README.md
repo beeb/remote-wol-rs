@@ -38,3 +38,9 @@ By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If
 3. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
 4. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
 5. `npm install -g sass` - install `dart-sass` (should be optional in future
+
+## Allowing ping without being root:
+
+```bash
+sudo setcap 'cap_net_raw+epi' remote_wol
+```

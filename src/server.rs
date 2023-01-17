@@ -7,15 +7,16 @@ use axum::{
     handler::HandlerWithoutStateExt,
     http::{header, StatusCode, Uri},
     response::{Html, IntoResponse, Response},
-    routing::post,
-    Router,
+    routing::{get, post},
+    Json, Router,
 };
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
 use rust_embed::RustEmbed;
+use serde::Serialize;
 use wol::MacAddr;
 
-use crate::{app::*, cli::Args};
+use crate::{app::*, cli::Args, ping::Pinger};
 
 struct Settings {
     mac_address: MacAddr,
@@ -58,7 +59,7 @@ fn parse_args(args: Args) -> Result<Settings> {
 }
 
 pub async fn server_start(args: Args) -> Result<()> {
-    let settings = parse_args(args)?;
+    let settings = Arc::new(parse_args(args)?);
 
     let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
     if config_file.is_none() {
@@ -71,17 +72,36 @@ pub async fn server_start(args: Args) -> Result<()> {
     let leptos_options = conf.leptos_options;
 
     let app = Router::new()
+        .route("/api/ping", get(ping_handler))
         .route("/api/*fn_name", post(handle_server_fns))
         .route_service("/pkg/*file", static_handler.into_service()) // anything starting with /pkg gets routed to rust-embed
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
         .fallback(fallback)
-        .layer(Extension(Arc::new(leptos_options)));
+        .layer(Extension(Arc::new(leptos_options)))
+        .layer(Extension(settings));
 
     log!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .map_err(|e| e.into())
+}
+
+#[derive(Serialize)]
+struct PingResponse {
+    success: bool,
+}
+
+async fn ping_handler(Extension(settings): Extension<Arc<Settings>>) -> impl IntoResponse {
+    let Some(ip_address) = settings.ip_address else {
+        return Json(PingResponse { success: false });
+    };
+    let pinger = Pinger::new().expect("Failed to initialize pinger");
+    let success = match pinger.ping(ip_address, None).await {
+        Ok(_) => true,
+        Err(_) => false,
+    };
+    return Json(PingResponse { success });
 }
 
 async fn static_handler(uri: Uri) -> impl IntoResponse {

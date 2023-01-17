@@ -1,6 +1,6 @@
 [package]
 name = "remote_wol"
-author = "Valentin Bersier <vbersier@gmail.com>"
+authors = ["Valentin Bersier <vbersier@gmail.com>"]
 description = "A utility to wake up a local computer remotely using a web interface."
 version = "0.1.0"
 edition = "2021"
@@ -10,10 +10,11 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 anyhow = { version = "1", optional = true }
-axum = { version = "0.6", optional = true }
+axum = { version = "0.6", optional = true, features = ["json"] }
 clap = { version = "4", optional = true, features = ["derive"] }
 console_error_panic_hook = "0.1"
 console_log = "0.2"
+fastrand = { version = "1", optional = true }
 leptos = { version = "0.1", default-features = false, features = ["serde"] }
 leptos_meta = { version = "0.1", default-features = false }
 leptos_axum = { version = "0.1", optional = true }
@@ -21,7 +22,9 @@ leptos_router = { version = "0.1", default-features = false }
 log = "0.4"
 mime_guess = { version = "2", optional = true }
 rust-embed = { version = "6", features = ["include-exclude"], optional = true }
+serde = { version = "1", optional = true }
 simple_logger = "4"
+surge-ping = { version = "0.7", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 wasm-bindgen = "0.2"
 wol-rs = { version = "1", optional = true }
@@ -32,9 +35,12 @@ ssr = [
   "dep:anyhow",
   "dep:axum",
   "dep:clap",
+  "dep:fastrand",
   "dep:leptos_axum",
   "dep:mime_guess",
   "dep:rust-embed",
+  "dep:serde",
+  "dep:surge-ping",
   "dep:tokio",
   "dep:wol-rs",
   "leptos/ssr",
