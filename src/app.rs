@@ -1,9 +1,12 @@
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ssr")]
 use crate::server::SETTINGS;
+#[cfg(feature = "ssr")]
+use axum::http::StatusCode;
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
@@ -30,16 +33,35 @@ pub fn App(cx: Scope) -> impl IntoView {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct PingResponse {
+    success: bool,
+    error: Option<String>,
+}
+
 #[server(WakeUp, "/api")]
-pub async fn wake_up(passphrase: String) -> Result<(), ServerFnError> {
+pub async fn wake_up(cx: Scope, passphrase: String) -> Result<PingResponse, ServerFnError> {
+    let response = use_context::<leptos_axum::ResponseOptions>(cx)
+        .expect("to have leptos_axum::ResponseOptions provided");
     let Some(settings) = SETTINGS.get() else {
-        return Err(ServerFnError::ServerError("Settings not initialized".to_string()));
+        response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+        return Ok(PingResponse {
+            success: false,
+            error: Some("Settings not initialized".to_string()),
+        });
     };
     if settings.passphrase != passphrase {
-        return Err(ServerFnError::ServerError("Wrong passphrase".to_string()));
+        response.set_status(StatusCode::BAD_REQUEST).await;
+        return Ok(PingResponse {
+            success: false,
+            error: Some("Wrong passphrase".to_string()),
+        });
     }
     // TDOD: wake up
-    Ok(())
+    Ok(PingResponse {
+        success: true,
+        error: None,
+    })
 }
 
 #[component]

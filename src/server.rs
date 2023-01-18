@@ -98,7 +98,6 @@ pub async fn server_start(args: Args) -> Result<()> {
 #[derive(Serialize)]
 struct PingResponse {
     success: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,
 }
 
