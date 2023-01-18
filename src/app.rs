@@ -30,7 +30,6 @@ pub fn App(cx: Scope) -> impl IntoView {
     }
 }
 
-#[cfg(feature = "ssr")]
 #[server(WakeUp, "/api")]
 pub async fn wake_up(passphrase: String) -> Result<(), ServerFnError> {
     let Some(settings) = SETTINGS.get() else {
@@ -41,12 +40,11 @@ pub async fn wake_up(passphrase: String) -> Result<(), ServerFnError> {
     }
     // TDOD: wake up
     Ok(())
-    /* Ok(_row) => Ok(()),
-    Err(e) => Err(ServerFnError::ServerError(e.to_string())), */
 }
 
 #[component]
 fn MainView(cx: Scope) -> impl IntoView {
+    let wake_up = create_server_action::<WakeUp>(cx);
     let (passphrase, set_passphrase) = create_signal(cx, String::new());
     let on_input = move |ev| set_passphrase(event_target_value(&ev));
     let submit_disabled = move || passphrase().len() < 8;
@@ -64,28 +62,30 @@ fn MainView(cx: Scope) -> impl IntoView {
                         "offline"
                     </div>
             </div>
-            <form class="flex flex-col gap-4" method="post">
-                <div class="flex items-center gap-4 flex-wrap">
-                    <label class="text-lg" for="passphrase">"Passphrase:"</label>
-                    <input
-                        class="grow rounded-lg text-lg p-2 border border-slate-300"
-                        type="password"
-                        id="passphrase"
-                        name="passphrase"
-                        prop:value=passphrase
-                        on:input=on_input
-                    />
+            <ActionForm action=wake_up>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <label class="text-lg" for="passphrase">"Passphrase:"</label>
+                        <input
+                            class="grow rounded-lg text-lg p-2 border border-slate-300"
+                            type="password"
+                            id="passphrase"
+                            name="passphrase"
+                            prop:value=passphrase
+                            on:input=on_input
+                        />
+                    </div>
+                    <div class="flex justify-center">
+                        <button
+                            class="primary p-3 rounded-lg text-lg uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                            type="submit"
+                            prop:disabled=submit_disabled
+                        >
+                            "Wake up!"
+                        </button>
+                    </div>
                 </div>
-                <div class="flex justify-center">
-                    <button
-                        class="primary p-3 rounded-lg text-lg uppercase disabled:opacity-50 disabled:cursor-not-allowed"
-                        type="submit"
-                        prop:disabled=submit_disabled
-                    >
-                        "Wake up!"
-                    </button>
-                </div>
-            </form>
+            </ActionForm>
         </div>
     </div>
     }
