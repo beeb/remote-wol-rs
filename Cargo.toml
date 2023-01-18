@@ -23,7 +23,7 @@ log = "0.4"
 mime_guess = { version = "2", optional = true }
 once_cell = { version = "1.17.0", optional = true }
 rust-embed = { version = "6", features = ["include-exclude"], optional = true }
-serde = { version = "1", optional = true }
+serde = "1"
 simple_logger = "4"
 surge-ping = { version = "0.7", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
@@ -41,7 +41,6 @@ ssr = [
   "dep:mime_guess",
   "dep:once_cell",
   "dep:rust-embed",
-  "dep:serde",
   "dep:surge-ping",
   "dep:tokio",
   "dep:wol-rs",

@@ -75,6 +75,8 @@ pub async fn server_start(args: Args) -> Result<()> {
     let routes = generate_route_list(|cx| view! { cx, <App/> }).await;
     let leptos_options = conf.leptos_options;
 
+    register_server_functions();
+
     let app = Router::new()
         .route("/api/ping", get(ping_handler))
         .route("/api/*fn_name", post(handle_server_fns))
