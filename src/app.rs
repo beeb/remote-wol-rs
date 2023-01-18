@@ -129,13 +129,14 @@ fn MainView(cx: Scope) -> impl IntoView {
             .unwrap_or(false)
     };
 
-    // this doesn't work
-    let _ = set_interval(
-        move || {
-            ping.dispatch(Ping {});
-        },
-        Duration::from_millis(2500),
-    );
+    if cfg!(not(feature = "ssr")) {
+        let _ = set_interval(
+            move || {
+                ping.dispatch(Ping {});
+            },
+            Duration::from_millis(2500),
+        );
+    }
 
     view! { cx,
     <div class="flex justify-center items-center min-h-screen min-w-screen p-8">
