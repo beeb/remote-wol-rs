@@ -7,17 +7,16 @@ use axum::{
     handler::HandlerWithoutStateExt,
     http::{header, StatusCode, Uri},
     response::{IntoResponse, Response},
-    routing::{get, post},
-    Json, Router,
+    routing::post,
+    Router,
 };
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
 use once_cell::sync::OnceCell;
 use rust_embed::RustEmbed;
-use serde::Serialize;
 use wol::MacAddr;
 
-use crate::{app::*, cli::Args, ping::Pinger};
+use crate::{app::*, cli::Args};
 
 pub struct Settings {
     pub mac_address: MacAddr,
@@ -82,7 +81,6 @@ pub async fn server_start(args: Args) -> Result<()> {
     register_server_functions();
 
     let app = Router::new()
-        .route("/api/ping", get(ping_handler))
         .route("/api/*fn_name", post(handle_server_fns))
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
         .fallback_service(static_handler.into_service()) // static files
@@ -93,34 +91,6 @@ pub async fn server_start(args: Args) -> Result<()> {
         .serve(app.into_make_service())
         .await
         .map_err(|e| e.into())
-}
-
-#[derive(Serialize)]
-struct PingResponse {
-    success: bool,
-    error: Option<String>,
-}
-
-async fn ping_handler() -> impl IntoResponse {
-    let Some(settings) = SETTINGS.get() else {
-        return Json(PingResponse { success: false, error: Some("Settings not initialized".to_string()) });
-    };
-    let Some(ip_address) = settings.ip_address else {
-        return Json(PingResponse { success: false, error: None });
-    };
-    let Ok(pinger) = Pinger::new() else {
-        // probably due to lack of permissions
-        // ping needs root or CAP_NET_RAW capability set on the binary
-        return Json(PingResponse { success: false, error: Some("Operation not permitted".to_string()) });
-    };
-    let success = match pinger.ping(ip_address, None).await {
-        Ok(_) => true,
-        Err(_) => false,
-    };
-    return Json(PingResponse {
-        success,
-        error: None,
-    });
 }
 
 async fn static_handler(uri: Uri) -> impl IntoResponse {

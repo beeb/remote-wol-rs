@@ -120,21 +120,22 @@ fn MainView(cx: Scope) -> impl IntoView {
     let (passphrase, set_passphrase) = create_signal(cx, String::new());
     let on_input = move |ev| set_passphrase(event_target_value(&ev));
     let submit_disabled = move || passphrase().len() < 8;
-    let ping_result = ping.value();
     let online = move || {
-        ping_result()
+        let ping_result = ping.value();
+        ping_result
+            .get()
             .and_then(|r| r.ok())
             .map(|r| r.success)
             .unwrap_or(false)
     };
 
     // this doesn't work
-    /* let _ = set_interval(
+    let _ = set_interval(
         move || {
             ping.dispatch(Ping {});
         },
         Duration::from_millis(2500),
-    ); */
+    );
 
     view! { cx,
     <div class="flex justify-center items-center min-h-screen min-w-screen p-8">
