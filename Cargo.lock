@@ -1647,6 +1647,7 @@ dependencies = [
  "leptos_router",
  "log",
  "mime_guess",
+ "once_cell",
  "rust-embed",
  "serde",
  "simple_logger",

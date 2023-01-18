@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  background-color: #dce0e8;
+  color: hsl(234, 16%, 30%);
+}
+
+.card {
+  border-radius: 24px;
+  background: #dce0e8;
+  box-shadow: 14px 14px 28px #c4c7ce, -14px -14px 28px #f4f9ff;
+}
+.primary {
+  @apply bg-[#7287fd] text-white;
+}
+.success {
+  @apply bg-[#40a02b] text-white;
+}
+.error {
+  @apply bg-[#d20f39] text-white;
+}
+.text-error {
+  @apply text-[#d20f39];
+}
+.text-success {
+  @apply text-[#40a02b];
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loader {
+  height: 1.2rem;
+  width: 1.2rem;
+  border-radius: 9999px;
+  border-width: 2px;
+  animation: spin 2s linear infinite;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-bottom-color: #4c4f69;
+  border-right-color: #4c4f69;
+}

@@ -6,23 +6,26 @@ use axum::{
     extract::Extension,
     handler::HandlerWithoutStateExt,
     http::{header, StatusCode, Uri},
-    response::{Html, IntoResponse, Response},
+    response::{IntoResponse, Response},
     routing::{get, post},
     Json, Router,
 };
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
+use once_cell::sync::OnceCell;
 use rust_embed::RustEmbed;
 use serde::Serialize;
 use wol::MacAddr;
 
 use crate::{app::*, cli::Args, ping::Pinger};
 
-struct Settings {
-    mac_address: MacAddr,
-    passphrase: String,
-    ip_address: Option<IpAddr>,
+pub struct Settings {
+    pub mac_address: MacAddr,
+    pub passphrase: String,
+    pub ip_address: Option<IpAddr>,
 }
+
+pub static SETTINGS: OnceCell<Settings> = OnceCell::new();
 
 fn parse_args(args: Args) -> Result<Settings> {
     match args
@@ -59,7 +62,8 @@ fn parse_args(args: Args) -> Result<Settings> {
 }
 
 pub async fn server_start(args: Args) -> Result<()> {
-    let settings = Arc::new(parse_args(args)?);
+    let settings = parse_args(args)?;
+    SETTINGS.set(settings).map_err(|_| anyhow!("Error"))?;
 
     let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
     if config_file.is_none() {
@@ -74,12 +78,9 @@ pub async fn server_start(args: Args) -> Result<()> {
     let app = Router::new()
         .route("/api/ping", get(ping_handler))
         .route("/api/*fn_name", post(handle_server_fns))
-        .route_service("/favicon.ico", static_handler.into_service())
-        .route_service("/pkg/*file", static_handler.into_service())
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
-        .fallback(fallback)
-        .layer(Extension(Arc::new(leptos_options)))
-        .layer(Extension(settings));
+        .fallback_service(static_handler.into_service()) // static files
+        .layer(Extension(Arc::new(leptos_options)));
 
     log!("listening on {}", addr);
     axum::Server::bind(&addr)
@@ -95,7 +96,10 @@ struct PingResponse {
     error: Option<String>,
 }
 
-async fn ping_handler(Extension(settings): Extension<Arc<Settings>>) -> impl IntoResponse {
+async fn ping_handler() -> impl IntoResponse {
+    let Some(settings) = SETTINGS.get() else {
+        return Json(PingResponse { success: false, error: Some("Settings not initialized".to_string()) });
+    };
     let Some(ip_address) = settings.ip_address else {
         return Json(PingResponse { success: false, error: None });
     };
@@ -117,10 +121,6 @@ async fn ping_handler(Extension(settings): Extension<Arc<Settings>>) -> impl Int
 async fn static_handler(uri: Uri) -> impl IntoResponse {
     let path = uri.path().trim_start_matches('/').to_string();
     StaticFile(path)
-}
-
-async fn fallback() -> (StatusCode, Html<&'static str>) {
-    (StatusCode::NOT_FOUND, Html("<h1>404</h1><p>Not Found</p>"))
 }
 
 /// Embed assets into binary
