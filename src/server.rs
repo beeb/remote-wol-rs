@@ -54,6 +54,10 @@ fn parse_args(args: Args) -> Result<Settings> {
         .or_else(|| env::var("WOL_PASSPHRASE").ok())
         .ok_or_else(|| anyhow!("passphrase not set"))?;
 
+    if passphrase.len() < 8 {
+        return Err(anyhow!("Passphrase must be at least 8 characters long"));
+    }
+
     Ok(Settings {
         mac_address,
         passphrase,
