@@ -60,7 +60,7 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
             error: Some("Wrong passphrase".to_string()),
         });
     }
-    // TDOD: wake up
+    // TODO: wake up
     Ok(WakeUpResponse {
         success: true,
         error: None,
