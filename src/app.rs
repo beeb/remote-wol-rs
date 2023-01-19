@@ -205,7 +205,16 @@ fn MainView(cx: Scope) -> impl IntoView {
                             view! {
                                 cx,
                                 <div class="flex items-center gap-2">
-                                    <div class="badge badge-danger">"offline"</div>
+                                    <div class="badge badge-danger">
+                                        "offline"
+                                        {move || match wakeup_status() {
+                                            Some(true) => Some(view! {
+                                                cx,
+                                                <div class="loader" />
+                                            }),
+                                            _ => None
+                                        }}
+                                    </div>
                                 </div>
                             }
                         }
