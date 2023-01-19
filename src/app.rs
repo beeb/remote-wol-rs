@@ -38,7 +38,7 @@ pub fn App(cx: Scope) -> impl IntoView {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct WakeUpResponse {
-    pub success: bool,
+    pub success: Option<bool>,
     pub error: Option<String>,
 }
 
@@ -49,20 +49,20 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
     let Some(settings) = SETTINGS.get() else {
         response.set_status(StatusCode::FAILED_DEPENDENCY).await;
         return Ok(WakeUpResponse {
-            success: false,
+            success: Some(false),
             error: Some("Settings not initialized".to_string()),
         });
     };
     if settings.passphrase != passphrase {
         response.set_status(StatusCode::BAD_REQUEST).await;
         return Ok(WakeUpResponse {
-            success: false,
+            success: None,
             error: Some("Wrong passphrase".to_string()),
         });
     }
     // TODO: wake up
     Ok(WakeUpResponse {
-        success: true,
+        success: Some(true),
         error: None,
     })
 }
@@ -119,7 +119,6 @@ fn MainView(cx: Scope) -> impl IntoView {
     let ping = create_server_action::<Ping>(cx);
     let (passphrase, set_passphrase) = create_signal(cx, String::new());
     let on_input = move |ev| set_passphrase(event_target_value(&ev));
-    let submit_disabled = move || passphrase().len() < 8;
     let online = move || {
         let ping_result = ping.value();
         match ping_result.get().and_then(|r| r.ok()) {
@@ -132,9 +131,9 @@ fn MainView(cx: Scope) -> impl IntoView {
             None => None,
         }
     };
+    let submit_disabled = move || passphrase().len() < 8 || Some(true) == online();
     let online_error = move || {
         let ping_result = ping.value();
-        log!("{:?}", ping_result.get());
         ping_result.get().and_then(|r| r.ok()).and_then(|r| r.error)
     };
     let online_warning = move || {
@@ -143,6 +142,20 @@ fn MainView(cx: Scope) -> impl IntoView {
             .get()
             .and_then(|r| r.ok())
             .and_then(|r| r.warning)
+    };
+    let wakeup_status = move || {
+        let wakeup_result = wake_up.value();
+        wakeup_result
+            .get()
+            .and_then(|r| r.ok())
+            .and_then(|r| r.success)
+    };
+    let wakeup_error = move || {
+        let wakeup_result = wake_up.value();
+        wakeup_result
+            .get()
+            .and_then(|r| r.ok())
+            .and_then(|r| r.error)
     };
 
     if cfg!(not(feature = "ssr")) {
@@ -158,6 +171,26 @@ fn MainView(cx: Scope) -> impl IntoView {
     <div class="flex justify-center items-center min-h-screen min-w-screen p-8">
         <div class="card flex flex-col w-full max-w-md p-6 gap-4">
             <h1 class="text-2xl font-bold text-center">"Remote Wake-on-LAN"</h1>
+            {
+                move || {wakeup_status().map(|success| {
+                    if success && Some(true) != online() {
+                        Some(view! {
+                            cx,
+                            <div class="text-lg success p-2 rounded-lg text-center">
+                                "Magic packet was sent. Please wait for the computer to wake up."
+                            </div>
+                        })
+                    } else {
+                        Some(view! {
+                            cx,
+                            <div class="text-lg error p-2 rounded-lg text-center">
+                                "Failed to send magic packet. "
+                                {move || wakeup_error().map(|e| e)}
+                            </div>
+                        })
+                    }
+                })}
+            }
             <div class="flex items-center gap-4 text-lg">
                 <div>"Device status:"</div>
                     {move || if let Some(ol) = online() {
@@ -201,6 +234,17 @@ fn MainView(cx: Scope) -> impl IntoView {
                             prop:value=passphrase
                             on:input=on_input
                         />
+                        {move || {
+                            match wakeup_status() {
+                                None => {
+                                    wakeup_error().map(|err| view! {
+                                        cx,
+                                        <div class="text-error grow text-center">{err}</div>
+                                    })
+                                },
+                                Some(_) => None
+                            }
+                        }}
                     </div>
                     <div class="flex justify-center">
                         <button
