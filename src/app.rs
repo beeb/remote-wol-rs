@@ -47,7 +47,7 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
     let response = use_context::<leptos_axum::ResponseOptions>(cx)
         .expect("to have leptos_axum::ResponseOptions provided");
     let Some(settings) = SETTINGS.get() else {
-        response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+        response.set_status(StatusCode::FAILED_DEPENDENCY).await;
         return Ok(WakeUpResponse {
             success: false,
             error: Some("Settings not initialized".to_string()),
@@ -67,7 +67,7 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
     })
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PingResponse {
     pub success: bool,
     pub warning: Option<String>,
@@ -79,7 +79,7 @@ async fn ping(cx: Scope) -> Result<PingResponse, ServerFnError> {
     let response = use_context::<leptos_axum::ResponseOptions>(cx)
         .expect("to have leptos_axum::ResponseOptions provided");
     let Some(settings) = SETTINGS.get() else {
-        response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+        response.set_status(StatusCode::FAILED_DEPENDENCY).await;
         return Ok(PingResponse {
             success: false,
             error: Some("Settings not initialized".to_string()),
@@ -96,7 +96,7 @@ async fn ping(cx: Scope) -> Result<PingResponse, ServerFnError> {
     let Ok(pinger) = Pinger::new() else {
         // probably due to lack of permissions
         // ping needs root or CAP_NET_RAW capability set on the binary
-        response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+        response.set_status(StatusCode::FORBIDDEN).await;
         return Ok(PingResponse {
             success: false,
             error: Some("Operation not permitted".to_string()),
@@ -122,11 +122,27 @@ fn MainView(cx: Scope) -> impl IntoView {
     let submit_disabled = move || passphrase().len() < 8;
     let online = move || {
         let ping_result = ping.value();
+        match ping_result.get().and_then(|r| r.ok()) {
+            Some(r) => {
+                if r.error.is_some() || r.warning.is_some() {
+                    return None;
+                }
+                Some(r.success)
+            }
+            None => None,
+        }
+    };
+    let online_error = move || {
+        let ping_result = ping.value();
+        log!("{:?}", ping_result.get());
+        ping_result.get().and_then(|r| r.ok()).and_then(|r| r.error)
+    };
+    let online_warning = move || {
+        let ping_result = ping.value();
         ping_result
             .get()
             .and_then(|r| r.ok())
-            .map(|r| r.success)
-            .unwrap_or(false)
+            .and_then(|r| r.warning)
     };
 
     if cfg!(not(feature = "ssr")) {
@@ -144,18 +160,31 @@ fn MainView(cx: Scope) -> impl IntoView {
             <h1 class="text-2xl font-bold text-center">"Remote Wake-on-LAN"</h1>
             <div class="flex items-center gap-4 text-lg">
                 <div>"Device status:"</div>
-                    {move || if online() {
-                        view! {
-                            cx,
-                            <div class="text-success flex items-center gap-2">
-                                "online"
-                            </div>
+                    {move || if let Some(ol) = online() {
+                        if ol {
+                            view! {
+                                cx,
+                                <div class="flex items-center gap-2">
+                                    <div class="badge badge-success">"online"</div>
+                                </div>
+                            }
+                        } else {
+                            view! {
+                                cx,
+                                <div class="flex items-center gap-2">
+                                    <div class="badge badge-danger">"offline"</div>
+                                </div>
+                            }
                         }
                     } else {
                         view! {
                             cx,
-                            <div class="text-error flex items-center gap-2">
-                                "offline"
+                            <div class="flex items-center gap-2">
+                                <div class="badge badge-primary">"unknown"</div>
+                                <span class="text-sm">
+                                    {move || online_error().unwrap_or_default()}
+                                    {move || online_warning().unwrap_or_default()}
+                                </span>
                             </div>
                         }
                     }}
