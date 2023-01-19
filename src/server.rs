@@ -1,4 +1,4 @@
-use std::{env, net::IpAddr, path::Path, sync::Arc};
+use std::{env, net::IpAddr, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use axum::{
@@ -27,13 +27,12 @@ pub struct Settings {
 pub static SETTINGS: OnceCell<Settings> = OnceCell::new();
 
 fn parse_args(args: Args) -> Result<Settings> {
-    match args
-        .site_addr
-        .or_else(|| env::var("LEPTOS_SITE_ADDRESS").ok())
-    {
-        Some(site_addr) => env::set_var("LEPTOS_SITE_ADDRESS", site_addr),
-        None => {}
-    };
+    let port_number = env::var("WOL_IP_ADDRESS")
+        .ok()
+        .map(|p| p.parse().ok())
+        .flatten()
+        .unwrap_or(args.port);
+    env::set_var("LEPTOS_SITE_ADDRESS", format!("127.0.0.1:{port_number}"));
 
     let ip_address = args.ip_address.or_else(|| env::var("WOL_IP_ADDRESS").ok());
     let ip_address: Option<IpAddr> = match ip_address {
@@ -66,13 +65,12 @@ fn parse_args(args: Args) -> Result<Settings> {
 
 pub async fn server_start(args: Args) -> Result<()> {
     let settings = parse_args(args)?;
-    SETTINGS.set(settings).map_err(|_| anyhow!("Error"))?;
+    SETTINGS
+        .set(settings)
+        .map_err(|_| anyhow!("Could not set global Settings"))?;
 
-    let config_file = Path::new("Cargo.toml").exists().then_some("Cargo.toml");
-    if config_file.is_none() {
-        env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol"); // required for constructing the config
-    }
-    let conf = get_configuration(config_file).await?;
+    env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol"); // required for constructing the config
+    let conf = get_configuration(None).await?;
     let addr = conf.leptos_options.site_address;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(|cx| view! { cx, <App/> }).await;
