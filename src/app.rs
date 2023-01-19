@@ -211,14 +211,14 @@ fn MainView(cx: Scope) -> impl IntoView {
                                 <div class="flex items-center gap-2">
                                     <div class="badge badge-danger">
                                         "offline"
-                                        {move || match wakeup_status() {
-                                            Some(true) => Some(view! {
-                                                cx,
-                                                <div class="loader" />
-                                            }),
-                                            _ => None
-                                        }}
                                     </div>
+                                    {move || match wakeup_status() {
+                                        Some(true) => Some(view! {
+                                            cx,
+                                            <div class="loader" />
+                                        }),
+                                        _ => None
+                                    }}
                                 </div>
                             }
                         }
@@ -245,6 +245,7 @@ fn MainView(cx: Scope) -> impl IntoView {
                             id="passphrase"
                             name="passphrase"
                             prop:value=passphrase
+                            prop:disabled=move || Some(true) == online()
                             on:input=on_input
                         />
                         {move || {
