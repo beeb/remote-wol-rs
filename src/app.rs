@@ -145,10 +145,14 @@ fn MainView(cx: Scope) -> impl IntoView {
     };
     let wakeup_status = move || {
         let wakeup_result = wake_up.value();
-        wakeup_result
+        let res = wakeup_result
             .get()
             .and_then(|r| r.ok())
-            .and_then(|r| r.success)
+            .and_then(|r| r.success);
+        if Some(true) == res {
+            set_passphrase(String::new());
+        }
+        res
     };
     let wakeup_error = move || {
         let wakeup_result = wake_up.value();
