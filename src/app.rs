@@ -228,8 +228,8 @@ fn MainView(cx: Scope) -> impl IntoView {
                             <div class="flex items-center gap-2">
                                 <div class="badge badge-primary">"unknown"</div>
                                 <span class="text-sm">
-                                    {move || online_error().unwrap_or_default()}
-                                    {move || online_warning().unwrap_or_default()}
+                                    {online_error().unwrap_or_default()}
+                                    {online_warning().unwrap_or_default()}
                                 </span>
                             </div>
                         }
