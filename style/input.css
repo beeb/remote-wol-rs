@@ -1,3 +1,7 @@
+/*
+Compile with tailwindcss-cli using `tailwind -i style/input.css -o style/output.css`
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
