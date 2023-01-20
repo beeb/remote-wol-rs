@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::{ping::Pinger, server::SETTINGS};
 #[cfg(feature = "ssr")]
 use axum::http::StatusCode;
+#[cfg(feature = "ssr")]
+use wol::send_wol;
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
@@ -60,11 +62,19 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
             error: Some("Wrong passphrase".to_string()),
         });
     }
-    // TODO: wake up
-    Ok(WakeUpResponse {
-        success: Some(true),
-        error: None,
-    })
+    match send_wol(settings.mac_address, None, None) {
+        Ok(_) => Ok(WakeUpResponse {
+            success: Some(true),
+            error: None,
+        }),
+        Err(e) => {
+            response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+            Ok(WakeUpResponse {
+                success: Some(false),
+                error: Some(format!("Error sending WOL packet: {}", e)),
+            })
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
