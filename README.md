@@ -30,7 +30,8 @@ The binary expects at least 2 arguments:
 remote_wol -m 01:02:03:04:05:06 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
 ```
 
-Alternatively, those parameters can be provided with environment variables:
+Alternatively, those parameters can be provided with environment variables,
+even using a `.env` file in the same directory:
 
 - `WOL_MAC_ADDRESS`
 - `WOL_PASSPHRASE`
