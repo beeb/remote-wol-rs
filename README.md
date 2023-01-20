@@ -81,3 +81,9 @@ capability like below:
 ```bash
 sudo setcap 'cap_net_raw+epi' ./target/server/release/remote_wol
 ```
+
+## Credits
+
+This application relies heavily on [`wol-rs`](https://github.com/fengyc/wol-rs) and
+[`Leptos`](https://github.com/leptos-rs/leptos) for its core functionality. Thank you to their respective authors and
+maintainers!
