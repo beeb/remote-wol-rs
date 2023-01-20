@@ -59,7 +59,7 @@ jobs:
           name: pkg
           path: target/site/pkg
 
-      - run: cross build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target ${{ matrix.target }}
+      - run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target ${{ matrix.target }}
 
       - uses: actions/upload-artifact@v3
         with:
