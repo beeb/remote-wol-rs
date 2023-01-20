@@ -1,3 +1,4 @@
+#![allow(unused_variables)] // fixes a glitch warning about `cx` not being used in server functions
 use std::time::Duration;
 
 use leptos::*;
