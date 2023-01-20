@@ -1,0 +1,66 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  wasm-build:
+    name: Build wasm
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: wasm32-unknown-unknown
+
+      - run: cargo build --package=remote_wol --lib --target-dir=target/front \
+        --target=wasm32-unknown-unknown --no-default-features --features=hydrate --release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wasm
+          path: target/front/wasm32-unknown-unknown/release/remote_wol.wasm
+          if-no-files-found: error
+
+  bin-build:
+    name: Build for ${{ matrix.platform }}
+    needs: [wasm-build]
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-unknown-linux-gnu
+            platform: linux_arm64
+          - target: x86_64-unknown-linux-gnu
+            platform: linux_amd64
+    runs-on: ubuntu-latest
+    env:
+      CROSS_CONTAINER_IN_CONTAINER: 'true'
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: ${{ matrix.target }}
+
+      - run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: wasm
+          path: target/front/wasm32-unknown-unknown/release/remote_wol.wasm
+
+
+      - run: cross build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features \
+        --features=ssr --release --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.platform }}
+          path: target/server/${{ matrix.target }}/release/remote_wol
+          if-no-files-found: error
+

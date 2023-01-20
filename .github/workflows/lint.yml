@@ -7,14 +7,14 @@ on:
 
 jobs:
   check:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check
 
   fmt:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     name: Rustfmt
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
       - run: cargo fmt --all -- --check
 
   clippy:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     name: Clippy
     steps:
       - uses: actions/checkout@v3
