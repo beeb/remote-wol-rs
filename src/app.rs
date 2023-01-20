@@ -201,7 +201,7 @@ fn MainView(cx: Scope) -> impl IntoView {
                             cx,
                             <div class="text-lg error p-2 rounded-lg text-center">
                                 "Failed to send magic packet. "
-                                {move || wakeup_error().map(|e| e)}
+                                {move || wakeup_error()}
                             </div>
                         })
                     }
