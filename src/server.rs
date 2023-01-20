@@ -27,7 +27,7 @@ pub struct Settings {
 pub static SETTINGS: OnceCell<Settings> = OnceCell::new();
 
 fn parse_args(args: Args) -> Result<Settings> {
-    let port_number = env::var("WOL_IP_ADDRESS")
+    let port_number = env::var("WOL_PORT")
         .ok()
         .map(|p| p.parse().ok())
         .flatten()
