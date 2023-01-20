@@ -18,8 +18,7 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - run: cargo build --package=remote_wol --lib --target-dir=target/front \
-        --target=wasm32-unknown-unknown --no-default-features --features=hydrate --release
+      - run: cargo build --package=remote_wol --lib --target-dir=target/front --target=wasm32-unknown-unknown --no-default-features --features=hydrate --release
 
       - uses: actions/upload-artifact@v3
         with:
@@ -54,13 +53,10 @@ jobs:
           name: wasm
           path: target/front/wasm32-unknown-unknown/release/remote_wol.wasm
 
-
-      - run: cross build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features \
-        --features=ssr --release --target ${{ matrix.target }}
+      - run: cross build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target ${{ matrix.target }}
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.platform }}
           path: target/server/${{ matrix.target }}/release/remote_wol
           if-no-files-found: error
-
