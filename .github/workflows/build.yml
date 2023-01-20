@@ -8,7 +8,7 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   wasm-build:
-    name: Build wasm
+    name: Build client files
     needs: [lint]
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
           if-no-files-found: error
 
   bin-build:
-    name: Build for ${{ matrix.platform }}
+    name: Build server for ${{ matrix.platform }}
     needs: [wasm-build]
     strategy:
       matrix:

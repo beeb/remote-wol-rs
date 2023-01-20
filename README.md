@@ -64,7 +64,7 @@ rustup +nightly target add wasm32-unknown-unknown
 As a pre-build step, you need to compile the CSS using [`tailwindcss`](https://tailwindcss.com/docs/installation):
 
 ```bash
-tailwindcss -i style/input.css -o style/output.css
+tailwindcss -i style/input.css -o style/output.css --minify
 ```
 
 Then, you probably should use the `cargo-leptos` utility:
