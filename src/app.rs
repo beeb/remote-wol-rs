@@ -69,7 +69,8 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
             error: None,
         }),
         Err(e) => {
-            response.set_status(StatusCode::INTERNAL_SERVER_ERROR).await;
+            // ideally this would be a 5xx but leptos loses the response body on 5xx and returns a ServerFnError instead
+            response.set_status(StatusCode::BAD_REQUEST).await;
             Ok(WakeUpResponse {
                 success: Some(false),
                 error: Some(format!("Error sending WOL packet: {}", e)),
@@ -105,7 +106,8 @@ async fn ping(cx: Scope) -> Result<PingResponse, ServerFnError> {
         });
     };
     let Ok(pinger) = Pinger::new() else {
-        // probably due to lack of permissions
+        // ideally this would be a 5xx but leptos loses the response body on 5xx and returns a ServerFnError instead
+        // Error probably due to lack of permissions
         // ping needs root or CAP_NET_RAW capability set on the binary
         response.set_status(StatusCode::FORBIDDEN).await;
         return Ok(PingResponse {
