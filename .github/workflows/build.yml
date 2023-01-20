@@ -18,12 +18,20 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - run: cargo build --package=remote_wol --lib --target-dir=target/front --target=wasm32-unknown-unknown --no-default-features --features=hydrate --release
+      - run: cargo install --locked cargo-leptos
+
+      - uses: ZoeyVid/tailwindcss-update@main
+        with:
+          input: style/input.css
+          output: style/output.css
+          params: '--minify'
+
+      - run: cargo leptos build --release
 
       - uses: actions/upload-artifact@v3
         with:
-          name: wasm
-          path: target/front/wasm32-unknown-unknown/release/remote_wol.wasm
+          name: pkg
+          path: target/site/pkg
           if-no-files-found: error
 
   bin-build:
@@ -37,8 +45,6 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             platform: linux_amd64
     runs-on: ubuntu-latest
-    env:
-      CROSS_CONTAINER_IN_CONTAINER: 'true'
     steps:
       - uses: actions/checkout@v3
 
@@ -50,8 +56,8 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: wasm
-          path: target/front/wasm32-unknown-unknown/release/remote_wol.wasm
+          name: pkg
+          path: target/site/pkg
 
       - run: cross build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target ${{ matrix.target }}
 
