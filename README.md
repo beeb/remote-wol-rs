@@ -24,7 +24,7 @@ The binary expects at least 2 arguments:
 - the MAC address of the device to wake up
 - the passphrase that will protect this interface from unauthorized use
 - (optional) the local IP address of the device to wake up, for monitoring its upstate.
-- (optional) the port where the app will be exposed (default: 3000)
+- (optional) the port where the web interface will be served (default: 3000)
 
 ```bash
 remote_wol -m 01:02:03:04:05:06 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
