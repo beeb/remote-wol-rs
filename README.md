@@ -1,7 +1,7 @@
 # Remote Wake-on-LAN with Rust and Leptos
 
-This Rust and [Leptos](https://github.com/leptos-rs/leptos) application allows to connect to a web interface and
-trigger a magic packet that will wake another device on the network through its ethernet adapter.
+A self-contained, single-binary Rust and [Leptos](https://github.com/leptos-rs/leptos) application serving a web
+interface to wake another device on the network through its ethernet adapter using Wake-on-LAN magic packets.
 
 ```
 A utility to wake up a local computer remotely using a web interface.
