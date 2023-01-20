@@ -163,6 +163,7 @@ fn MainView(cx: Scope) -> impl IntoView {
     };
 
     if cfg!(not(feature = "ssr")) {
+        ping.dispatch(Ping {});
         let _ = set_interval(
             move || {
                 ping.dispatch(Ping {});
