@@ -14,6 +14,7 @@ axum = { version = "0.6", optional = true, features = ["json"] }
 clap = { version = "4", optional = true, features = ["derive"] }
 console_error_panic_hook = "0.1"
 console_log = "0.2"
+dotenvy = { version = "0.15", optional = true }
 fastrand = { version = "1", optional = true }
 leptos = { git = "https://github.com/leptos-rs/leptos", default-features = false, features = [
   "serde",
@@ -38,6 +39,7 @@ ssr = [
   "dep:anyhow",
   "dep:axum",
   "dep:clap",
+  "dep:dotenvy",
   "dep:fastrand",
   "dep:leptos_axum",
   "dep:mime_guess",
