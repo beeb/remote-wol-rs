@@ -37,11 +37,11 @@ jobs:
         run: cargo install --locked cargo-leptos
 
       - name: compile CSS
-        uses: ZoeyVid/tailwindcss-update@main
-        with:
-          input: style/input.css
-          output: style/output.css
-          params: '--minify'
+        run: |
+          wget https://github.com/tailwindlabs/tailwindcss/releases/download/v3.2.4/tailwindcss-linux-x64
+          mv tailwindcss-linux-x64 tailwind
+          chmod +x tailwind
+          ./tailwind -i style/input.css -o style/output.css --minify
 
       - name: cargo leptos build
         run: cargo leptos build --release
