@@ -32,7 +32,7 @@ fn parse_args(args: Args) -> Result<Settings> {
         .map(|p| p.parse().ok())
         .flatten()
         .unwrap_or(args.port);
-    env::set_var("LEPTOS_SITE_ADDRESS", format!("127.0.0.1:{port_number}"));
+    env::set_var("LEPTOS_SITE_ADDR", format!("127.0.0.1:{port_number}"));
 
     let ip_address = args.ip_address.or_else(|| env::var("WOL_IP_ADDRESS").ok());
     let ip_address: Option<IpAddr> = match ip_address {
