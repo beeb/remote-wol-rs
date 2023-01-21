@@ -198,7 +198,7 @@ fn MainView(cx: Scope) -> impl IntoView {
                                 "Magic packet was sent. Please wait for the computer to wake up."
                             </div>
                         })
-                    } else {
+                    } else if !success {
                         Some(view! {
                             cx,
                             <div class="text-lg error p-2 rounded-lg text-center">
@@ -206,6 +206,8 @@ fn MainView(cx: Scope) -> impl IntoView {
                                 {wakeup_error}
                             </div>
                         })
+                    } else {
+                        None
                     }
                 })}
             }
