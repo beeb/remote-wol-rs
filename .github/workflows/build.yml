@@ -31,6 +31,7 @@ jobs:
           targets: wasm32-unknown-unknown
 
       - name: install cargo-leptos
+        if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: cargo install --locked cargo-leptos
 
       - name: compile CSS
