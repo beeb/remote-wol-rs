@@ -74,7 +74,7 @@ jobs:
 
       - name: cross build
         if: matrix.os == 'ubuntu-latest'
-        run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target aarch64-unknown-linux-gnu
+        run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server-aarch64 --no-default-features --features=ssr --release --target aarch64-unknown-linux-gnu
 
       - name: upload native binary
         uses: actions/upload-artifact@v3
@@ -97,5 +97,5 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         with:
           name: ${{ matrix.os }}-aarch64
-          path: target/server/aarch64-unknown-linux-gnu/release/remote_wol
+          path: target/server-aarch64/aarch64-unknown-linux-gnu/release/remote_wol
           if-no-files-found: error
