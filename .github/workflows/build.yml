@@ -104,12 +104,12 @@ jobs:
           cargo build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target x86_64-unknown-linux-musl
           cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server-aarch64 --no-default-features --features=ssr --release --target aarch64-unknown-linux-musl
 
-      - name: upload native binary
-        if: matrix.os != 'windows-latest'
+      - name: upload native binary (mac)
+        if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}
-          path: target/server/x86_64-unknown-linux-musl/release/remote_wol
+          path: target/server/release/remote_wol
           if-no-files-found: error
 
       - name: upload native binary (windows)
@@ -118,6 +118,14 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: target/server/release/remote_wol.exe
+          if-no-files-found: error
+
+      - name: upload native binary (linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-aarch64
+          path: target/server/x86_64-unknown-linux-musl/release/remote_wol
           if-no-files-found: error
 
       - name: upload aarch64 binary
