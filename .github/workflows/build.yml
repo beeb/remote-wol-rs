@@ -105,6 +105,8 @@ jobs:
     needs: [bin-build]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: extract version from Cargo.toml
         uses: SebRollen/toml-action@v1.0.2
         id: version
