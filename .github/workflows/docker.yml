@@ -8,6 +8,7 @@ jobs:
   docker-build:
     name: Docker
     runs-on: ubuntu-latest
+    environment: Docker
     steps:
       - uses: actions/checkout@v3
 
