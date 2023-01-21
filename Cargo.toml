@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 
 [dependencies]
 anyhow = { version = "1", optional = true }
@@ -69,3 +69,6 @@ bin-features = ["ssr"]
 bin-default-features = false
 lib-features = ["hydrate"]
 lib-default-features = false
+
+[profile.release]
+lto = true
