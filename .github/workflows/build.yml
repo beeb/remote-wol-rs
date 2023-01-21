@@ -17,21 +17,23 @@ jobs:
       - uses: actions/cache@v3
         id: cache-wasm
         with:
-          path: target/site/pkg
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-wasm-${{ hashFiles('**/Cargo.lock') }}
 
       - name: install rust toolchain
-        if: ${{ steps.cache-wasm.outputs.cache-hit != 'true' }}
         uses: dtolnay/rust-toolchain@nightly
         with:
           targets: wasm32-unknown-unknown
 
       - name: install cargo-leptos
-        if: ${{ steps.cache-wasm.outputs.cache-hit != 'true' }}
         run: cargo install --locked cargo-leptos
 
       - name: compile CSS
-        if: ${{ steps.cache-wasm.outputs.cache-hit != 'true' }}
         uses: ZoeyVid/tailwindcss-update@main
         with:
           input: style/input.css
@@ -39,7 +41,6 @@ jobs:
           params: '--minify'
 
       - name: cargo leptos build
-        if: ${{ steps.cache-wasm.outputs.cache-hit != 'true' }}
         run: cargo leptos build --release
 
       - name: upload frontend files
@@ -58,6 +59,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        id: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: install rust toolchain
         if: matrix.os != 'ubuntu-latest'
