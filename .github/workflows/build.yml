@@ -124,7 +124,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os }}-aarch64
+          name: ${{ matrix.os }}
           path: target/server/x86_64-unknown-linux-musl/release/remote_wol
           if-no-files-found: error
 
