@@ -8,61 +8,94 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   wasm-build:
-    name: Build client files
+    name: build frontend files
     needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
         with:
           targets: wasm32-unknown-unknown
 
-      - run: cargo install --locked cargo-leptos
+      - name: install cargo-leptos
+        run: cargo install --locked cargo-leptos
 
-      - uses: ZoeyVid/tailwindcss-update@main
+      - name: compile CSS
+        uses: ZoeyVid/tailwindcss-update@main
         with:
           input: style/input.css
           output: style/output.css
           params: '--minify'
 
-      - run: cargo leptos build --release
+      - name: cargo leptos build
+        run: cargo leptos build --release
 
-      - uses: actions/upload-artifact@v3
+      - name: upload frontend files
+        uses: actions/upload-artifact@v3
         with:
           name: pkg
           path: target/site/pkg
           if-no-files-found: error
 
   bin-build:
-    name: Build server for ${{ matrix.platform }}
+    name: build server on ${{ matrix.os }}
     needs: [wasm-build]
     strategy:
       matrix:
-        include:
-          - target: aarch64-unknown-linux-gnu
-            platform: linux_arm64
-          - target: x86_64-unknown-linux-gnu
-            platform: linux_amd64
-    runs-on: ubuntu-latest
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        if: matrix.os != 'ubuntu-latest'
+
+      - name: install rust toolchain with aarch64 target
+        uses: dtolnay/rust-toolchain@nightly
+        if: matrix.os == 'ubuntu-latest'
         with:
-          targets: ${{ matrix.target }}
+          targets: aarch64-unknown-linux-gnu
 
-      - run: cargo install cross --git https://github.com/cross-rs/cross
+      - name: install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+        if: matrix.os == 'ubuntu-latest'
 
-      - uses: actions/download-artifact@v3
+      - name: download frontend files
+        uses: actions/download-artifact@v3
         with:
           name: pkg
           path: target/site/pkg
 
-      - run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target ${{ matrix.target }}
+      - name: build native
+        run: cargo build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release
 
-      - uses: actions/upload-artifact@v3
+      - name: cross build
+        if: matrix.os == 'ubuntu-latest'
+        run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target aarch64-unknown-linux-gnu
+
+      - name: upload native binary
+        uses: actions/upload-artifact@v3
+        if: matrix.os != 'windows-latest'
         with:
-          name: ${{ matrix.platform }}
-          path: target/server/${{ matrix.target }}/release/remote_wol
+          name: ${{ matrix.os }}
+          path: target/server/release/remote_wol
+          if-no-files-found: error
+
+      - name: upload native binary (windows)
+        uses: actions/upload-artifact@v3
+        if: matrix.os == 'windows-latest'
+        with:
+          name: ${{ matrix.os }}
+          path: target/server/release/remote_wol.exe
+          if-no-files-found: error
+
+      - name: upload aarch64 binary
+        uses: actions/upload-artifact@v3
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: ${{ matrix.os }}-aarch64
+          path: target/server/aarch64-unknown-linux-gnu/release/remote_wol
           if-no-files-found: error
