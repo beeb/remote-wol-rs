@@ -94,11 +94,14 @@ jobs:
           path: target/site/pkg
 
       - name: build native
-        run: cargo build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target x86_64-unknown-linux-musl
+        if: matrix.os != 'ubuntu-latest'
+        run: cargo build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release
 
-      - name: cross build
+      - name: build linux
         if: matrix.os == 'ubuntu-latest'
-        run: cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server-aarch64 --no-default-features --features=ssr --release --target aarch64-unknown-linux-musl
+        run: |
+          cargo build --package=remote_wol --bin=remote_wol --target-dir=target/server --no-default-features --features=ssr --release --target x86_64-unknown-linux-musl
+          cross build -v --package=remote_wol --bin=remote_wol --target-dir=target/server-aarch64 --no-default-features --features=ssr --release --target aarch64-unknown-linux-musl
 
       - name: upload native binary
         if: matrix.os != 'windows-latest'
