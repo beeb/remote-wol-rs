@@ -168,8 +168,8 @@ jobs:
         run: |
           tar -C ./artifacts/ubuntu-latest -czvf ./release/remote_wol-v${{ steps.version.outputs.value }}-linux-x64.tar.gz remote_wol
           tar -C ./artifacts/ubuntu-latest-aarch64 -czvf ./release/remote_wol-v${{ steps.version.outputs.value }}-linux-aarch64.tar.gz remote_wol
-          zip -r ./release/remote_wol-v${{ steps.version.outputs.value }}-windows.zip ./artifacts/windows-latest/remote_wol.exe
-          zip -r ./release/remote_wol-v${{ steps.version.outputs.value }}-macos.zip ./artifacts/macos-latest/remote_wol
+          zip -j ./release/remote_wol-v${{ steps.version.outputs.value }}-windows.zip ./artifacts/windows-latest/remote_wol.exe
+          zip -j ./release/remote_wol-v${{ steps.version.outputs.value }}-macos.zip ./artifacts/macos-latest/remote_wol
 
       - name: release
         uses: softprops/action-gh-release@v1
