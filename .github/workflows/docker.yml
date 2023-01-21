@@ -1,0 +1,68 @@
+name: Docker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker-build:
+    name: Docker
+    runs-on: ubuntu-latest
+    environment: Docker
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/setup-qemu-action@v2
+
+      - uses: docker/setup-buildx-action@v2
+
+      - name: download binaries
+        uses: robinraju/release-downloader@v1.7
+        id: dl
+        with:
+          latest: true
+          tarBall: true
+          zipBall: false
+
+      - name: extract binaries
+        run: |
+          tar -xzvf remote_wol-v*-linux-x64.tar.gz && mkdir linux_amd64 && mv remote_wol linux_amd64/remote_wol
+          tar -xzvf remote_wol-v*-linux-aarch64.tar.gz && mkdir linux_arm64 && mv remote_wol linux_arm64/remote_wol
+
+      - name: semver
+        id: semver
+        run: |
+          VERSION=$(echo "${{steps.dl.outputs.tag_name}}" | sed -e 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          MAJOR=`echo $VERSION | cut -d. -f1`
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          MINOR=`echo $VERSION | cut -d. -f2`
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          REVISION=`echo $REVISION | cut -d. -f3`
+          echo "revision=$REVISION" >> $GITHUB_OUTPUT
+
+      - name: Docker metadata # generates tags (version number and "latest") and labels
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: vbersier/remote-wol-rs
+          flavor: |
+            latest=true
+          tags: |
+            type=raw,value=${{steps.semver.outputs.major}},enable=${{ steps.semver.outputs.major != '0' }}
+            type=raw,value=${{steps.semver.outputs.major}}.${{steps.semver.outputs.minor}}
+            type=raw,value=${{steps.semver.outputs.version}}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          context: .
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64

@@ -65,7 +65,25 @@ On Windows, ping should work out of the box.
 
 ## Using Docker
 
-Coming soon
+```bash
+docker run --network="host" -d vbersier/remote-wol-rs:latest -m 01:02:03:04:05:06 \
+-p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
+```
+
+### Example using docker-compose
+
+```yaml
+services:
+  wol:
+    image: vbersier/remote-wol-rs:latest
+    restart: unless-stopped
+    # host mode is needed for UDP broadcast
+    network_mode: host
+    environment:
+      WOL_IP_ADDRESS: '192.168.0.123'
+      WOL_MAC_ADDRESS: 01:02:03:04:05:06
+      WOL_PASSPHRASE: your_l0ng_but_easy_to_remember_passphrase
+```
 
 ## Accessing from the internet
 

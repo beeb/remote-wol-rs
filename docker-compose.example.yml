@@ -1,0 +1,9 @@
+services:
+  wol:
+    image: vbersier/remote-wol-rs:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      WOL_IP_ADDRESS: '192.168.0.123'
+      WOL_MAC_ADDRESS: 00:00:00:00:00:00
+      WOL_PASSPHRASE: your_l0ng_but_easy_to_remember_passphrase
