@@ -18,4 +18,8 @@ pub struct Args {
     /// The local port used to serve the web app
     #[arg(long, default_value_t = 3000)]
     pub port: u16,
+
+    /// Expose the web app to the local network
+    #[arg(long)]
+    pub host: bool,
 }

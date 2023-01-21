@@ -13,6 +13,7 @@ Options:
   -i, --ip <IP_ADDRESS>    The IP of the device to wake up (for monitoring)
   -p, --pass <PASSPHRASE>  The passphrase to use to wake up the device
       --port <PORT>        The local port used to serve the web app [default: 3000]
+      --host               Expose the web app to the local network
   -h, --help               Print help
   -V, --version            Print version
 ```
@@ -25,6 +26,8 @@ The binary expects at least 2 arguments:
 - the passphrase that will protect this interface from unauthorized use
 - (optional) the local IP address of the device to wake up, for monitoring its upstate.
 - (optional) the port where the web interface will be served (default: 3000)
+- (optional) whether to run the interface on `0.0.0.0` (accessible on the local network) or
+  `127.0.0.1` (only on the loopback interface)
 
 ```bash
 remote_wol -m 01:02:03:04:05:06 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
@@ -37,6 +40,7 @@ even using a `.env` file in the same directory:
 - `WOL_PASSPHRASE`
 - `WOL_IP_ADDRESS`
 - `WOL_PORT`
+- `WOL_HOST`: e.g. `0.0.0.0` (expose to local network) or `127.0.0.1` (only on the loopback interface)
 
 ### About permissions
 
