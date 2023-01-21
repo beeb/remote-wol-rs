@@ -1,8 +1,7 @@
 name: Docker
 
 on:
-  push:
-    branches: ['docker']
+  workflow_dispatch:
 
 jobs:
   docker-build:
@@ -62,7 +61,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          push: false
+          push: true
           context: .
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
