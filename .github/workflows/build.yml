@@ -99,3 +99,40 @@ jobs:
           name: ${{ matrix.os }}-aarch64
           path: target/server-aarch64/aarch64-unknown-linux-gnu/release/remote_wol
           if-no-files-found: error
+
+  make-release:
+    name: create release
+    needs: [bin-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: extract version from Cargo.toml
+        uses: SebRollen/toml-action@v1.0.2
+        id: version
+        with:
+          file: Cargo.toml
+          field: package.version
+
+      - name: download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: create release directory
+        run: mkdir release
+
+      - name: create release files
+        run: |
+          tar -C ./artifacts/ubuntu-latest/remote_wol -czvf ./release/remote_wol-v${{ steps.version.outputs.value }}-linux-x64.tar.gz
+          tar -C ./artifacts/ubuntu-latest-aarch64/remote_wol -czvf ./release/remote_wol-v${{ steps.version.outputs.value }}-linux-aarch64.tar.gz
+          zip -r ./release/remote_wol-v${{ steps.version.outputs.value }}-windows.zip ./artifacts/windows-latest/remote_wol.exe
+          zip -r ./release/remote_wol-v${{ steps.version.outputs.value }}-macos.zip ./artifacts/macos-latest/remote_wol
+
+      - name: release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: remote_wol v${{ steps.version.outputs.value }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            release/*.tar.gz
+            release/*.zip
