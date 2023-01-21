@@ -1,0 +1,51 @@
+name: Docker
+
+on:
+  push:
+    branches: ['docker']
+
+jobs:
+  docker-build:
+    name: Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/setup-qemu-action@v2
+
+      - uses: docker/setup-buildx-action@v2
+
+      - name: download binaries
+        uses: robinraju/release-downloader@v1.7
+        with:
+          latest: true
+          tarBall: true
+          zipBall: false
+
+      - name: extract binaries
+        run: |
+          tar -xzvf remote_wol-v*-linux-x64.tar.gz && mkdir linux_amd64 && mv remote_wol linux_amd64/remote_wol
+          tar -xzvf remote_wol-v*-linux-aarch64.tar.gz && mkdir linux_arm64 && mv remote_wol linux_arm64/remote_wol
+
+      - name: Docker metadata # generates tags (version number and "latest") and labels
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: vbersier/remote-wol-rs
+          # tags: |
+          #   type=semver,pattern={{version}}
+          #   type=semver,pattern={{major}}.{{minor}}
+          #   type=semver,pattern={{major}}
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: vbersier
+      #     password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          context: .
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
