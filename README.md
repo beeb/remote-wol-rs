@@ -38,6 +38,27 @@ even using a `.env` file in the same directory:
 - `WOL_IP_ADDRESS`
 - `WOL_PORT`
 
+### About permissions
+
+In order for this binary to ping the target device, special permissions are required on linux and macOS.
+
+For linux, you can add (once) the `cap_net_raw` capability flag to the binary (requires root) and then use it later in
+user space.
+
+```bash
+sudo setcap 'cap_net_raw+epi' ./remote_wol
+# new session, can be used as user
+./remote_wol [OPTIONS]
+```
+
+For macOS, you probably need to run the binary as root to enable the ping to work:
+
+```bash
+sudo ./remote_wol [OPTIONS]
+```
+
+On Windows, ping should work out of the box.
+
 ## Using Docker
 
 Coming soon
