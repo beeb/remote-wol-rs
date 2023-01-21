@@ -31,7 +31,8 @@ jobs:
           targets: wasm32-unknown-unknown
 
       - name: install cargo-leptos
-        run: cargo install --locked cargo-leptos --force
+        if: steps.cache-wasm.outputs.cache-hit != 'true'
+        run: cargo install --locked cargo-leptos
 
       - name: compile CSS
         uses: ZoeyVid/tailwindcss-update@main
@@ -71,6 +72,10 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: install musl
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get -qq -y install musl-tools
+
       - name: install rust toolchain
         if: matrix.os != 'ubuntu-latest'
         uses: dtolnay/rust-toolchain@nightly
@@ -81,11 +86,9 @@ jobs:
         with:
           targets: x86_64-unknown-linux-musl aarch64-unknown-linux-musl
 
-      - name: install cross and musl
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cargo install cross --git https://github.com/cross-rs/cross --force
-          sudo apt-get -qq -y install musl-tools
+      - name: install cross
+        if: matrix.os == 'ubuntu-latest' && steps.cache-cargo.outputs.cache-hit != 'true'
+        run: cargo install cross --git https://github.com/cross-rs/cross
 
       - name: download frontend files
         uses: actions/download-artifact@v3
