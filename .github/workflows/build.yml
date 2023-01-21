@@ -31,8 +31,7 @@ jobs:
           targets: wasm32-unknown-unknown
 
       - name: install cargo-leptos
-        if: steps.cache-wasm.outputs.cache-hit != 'true'
-        run: cargo install --locked cargo-leptos
+        run: cargo install --locked cargo-leptos --force
 
       - name: compile CSS
         uses: ZoeyVid/tailwindcss-update@main
@@ -85,7 +84,7 @@ jobs:
       - name: install cross and musl
         if: matrix.os == 'ubuntu-latest'
         run: |
-          cargo install cross --git https://github.com/cross-rs/cross
+          cargo install cross --git https://github.com/cross-rs/cross --force
           sudo apt-get -qq -y install musl-tools
 
       - name: download frontend files
