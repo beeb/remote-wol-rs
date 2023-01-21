@@ -48,7 +48,7 @@ jobs:
           flavor: |
             latest=true
           tags: |
-            type=raw,value=${{steps.semver.outputs.major}}
+            type=raw,value=${{steps.semver.outputs.major}},enable=${{ steps.semver.outputs.major != '0' }}
             type=raw,value=${{steps.semver.outputs.major}}.${{steps.semver.outputs.minor}}
             type=raw,value=${{steps.semver.outputs.version}}
 
