@@ -65,6 +65,8 @@ On Windows, ping should work out of the box.
 
 ## Using Docker
 
+The application is available as a [docker image](https://hub.docker.com/r/vbersier/remote-wol-rs).
+
 ```bash
 docker run --network="host" -d vbersier/remote-wol-rs:latest -m 01:02:03:04:05:06 \
 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
