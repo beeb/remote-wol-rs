@@ -11,6 +11,11 @@ html {
   color: hsl(234, 16%, 30%);
 }
 
+.container {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .card {
   border-radius: 24px;
   background: #dce0e8;
