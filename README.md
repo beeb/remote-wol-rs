@@ -3,6 +3,8 @@
 A self-contained, single-binary Rust and [Leptos](https://github.com/leptos-rs/leptos) application serving a web
 interface to wake another device on the network through its ethernet adapter using Wake-on-LAN magic packets.
 
+![a screenshot of the web-app](screenshot.png)
+
 ```
 A utility to wake up a local computer remotely using a web interface.
 
