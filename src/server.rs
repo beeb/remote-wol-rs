@@ -1,19 +1,21 @@
-use std::{env, net::IpAddr, sync::Arc};
+use std::{env, net::IpAddr, sync::Arc, time::Duration};
 
 use anyhow::{anyhow, Result};
 use axum::{
     body::{boxed, Full},
+    error_handling::HandleErrorLayer,
     extract::Extension,
     handler::HandlerWithoutStateExt,
     http::{header, StatusCode, Uri},
     response::{IntoResponse, Response},
     routing::post,
-    Router,
+    BoxError, Router,
 };
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
 use once_cell::sync::OnceCell;
 use rust_embed::RustEmbed;
+use tower::{buffer::BufferLayer, limit::RateLimitLayer, ServiceBuilder};
 use wol::MacAddr;
 
 use crate::{app::*, cli::Args};
@@ -88,7 +90,18 @@ pub async fn server_start(args: Args) -> Result<()> {
         .route("/api/*fn_name", post(handle_server_fns))
         .leptos_routes(leptos_options.clone(), routes, |cx| view! { cx, <App/> })
         .fallback_service(static_handler.into_service()) // static files
-        .layer(Extension(Arc::new(leptos_options)));
+        .layer(Extension(Arc::new(leptos_options)))
+        .layer(
+            ServiceBuilder::new()
+                .layer(HandleErrorLayer::new(|err: BoxError| async move {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Unhandled error: {}", err),
+                    )
+                }))
+                .layer(BufferLayer::new(1024))
+                .layer(RateLimitLayer::new(100, Duration::from_secs(60))),
+        );
 
     log!("listening on {}", addr);
     axum::Server::bind(&addr)
