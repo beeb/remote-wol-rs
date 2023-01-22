@@ -1,5 +1,7 @@
 # Remote Wake-on-LAN with Rust and Leptos
 
+[![Docker](https://github.com/beeb/remote-wol-rs/actions/workflows/docker.yml/badge.svg)](https://github.com/beeb/remote-wol-rs/actions/workflows/docker.yml)
+
 A self-contained, single-binary Rust and [Leptos](https://github.com/leptos-rs/leptos) application serving a web
 interface to wake another device on the network through its ethernet adapter using Wake-on-LAN magic packets.
 
