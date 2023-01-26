@@ -1,5 +1,6 @@
 # Remote Wake-on-LAN with Rust and Leptos
 
+[![Build](https://github.com/beeb/remote-wol-rs/actions/workflows/build.yml/badge.svg)](https://github.com/beeb/remote-wol-rs/actions/workflows/build.yml)
 [![Docker](https://github.com/beeb/remote-wol-rs/actions/workflows/docker.yml/badge.svg)](https://github.com/beeb/remote-wol-rs/actions/workflows/docker.yml)
 
 A self-contained, single-binary Rust and [Leptos](https://github.com/leptos-rs/leptos) application serving a web
