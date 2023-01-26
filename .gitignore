@@ -12,6 +12,4 @@ test-results/
 end2end/playwright-report/
 playwright/.cache/
 
-style/output.css
-
 .env

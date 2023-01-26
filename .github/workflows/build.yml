@@ -36,13 +36,6 @@ jobs:
         if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: cargo install --locked cargo-leptos
 
-      - name: compile CSS
-        run: |
-          wget https://github.com/tailwindlabs/tailwindcss/releases/download/v3.2.4/tailwindcss-linux-x64
-          mv tailwindcss-linux-x64 tailwind
-          chmod +x tailwind
-          ./tailwind -i style/input.css -o style/output.css --minify
-
       - name: cargo leptos build
         run: cargo leptos build --release
 
