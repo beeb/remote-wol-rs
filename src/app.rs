@@ -50,14 +50,14 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
     let response = use_context::<leptos_axum::ResponseOptions>(cx)
         .expect("to have leptos_axum::ResponseOptions provided");
     let Some(settings) = SETTINGS.get() else {
-        response.set_status(StatusCode::FAILED_DEPENDENCY).await;
+        response.set_status(StatusCode::FAILED_DEPENDENCY);
         return Ok(WakeUpResponse {
             success: Some(false),
             error: Some("Settings not initialized".to_string()),
         });
     };
     if settings.passphrase != passphrase {
-        response.set_status(StatusCode::BAD_REQUEST).await;
+        response.set_status(StatusCode::BAD_REQUEST);
         return Ok(WakeUpResponse {
             success: None,
             error: Some("Wrong passphrase".to_string()),
@@ -70,10 +70,10 @@ pub async fn wake_up(cx: Scope, passphrase: String) -> Result<WakeUpResponse, Se
         }),
         Err(e) => {
             // ideally this would be a 5xx but leptos loses the response body on 5xx and returns a ServerFnError instead
-            response.set_status(StatusCode::BAD_REQUEST).await;
+            response.set_status(StatusCode::BAD_REQUEST);
             Ok(WakeUpResponse {
                 success: Some(false),
-                error: Some(format!("Error sending WOL packet: {}", e)),
+                error: Some(format!("Error sending WOL packet: {e}")),
             })
         }
     }
@@ -91,7 +91,7 @@ async fn ping(cx: Scope) -> Result<PingResponse, ServerFnError> {
     let response = use_context::<leptos_axum::ResponseOptions>(cx)
         .expect("to have leptos_axum::ResponseOptions provided");
     let Some(settings) = SETTINGS.get() else {
-        response.set_status(StatusCode::FAILED_DEPENDENCY).await;
+        response.set_status(StatusCode::FAILED_DEPENDENCY);
         return Ok(PingResponse {
             success: false,
             error: Some("Settings not initialized".to_string()),
@@ -109,21 +109,18 @@ async fn ping(cx: Scope) -> Result<PingResponse, ServerFnError> {
         // ideally this would be a 5xx but leptos loses the response body on 5xx and returns a ServerFnError instead
         // Error probably due to lack of permissions
         // ping needs root or CAP_NET_RAW capability set on the binary
-        response.set_status(StatusCode::FORBIDDEN).await;
+        response.set_status(StatusCode::FORBIDDEN);
         return Ok(PingResponse {
             success: false,
             error: Some("Operation not permitted".to_string()),
             ..Default::default()
         });
     };
-    let success = match pinger.ping(ip_address, None).await {
-        Ok(_) => true,
-        Err(_) => false,
-    };
-    return Ok(PingResponse {
+    let success = pinger.ping(ip_address, None).await.is_ok();
+    Ok(PingResponse {
         success,
         ..Default::default()
-    });
+    })
 }
 
 #[component]

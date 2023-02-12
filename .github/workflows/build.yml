@@ -14,23 +14,14 @@ jobs:
     needs: [lint]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/cache@v3
-        id: cache-wasm
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-wasm-${{ hashFiles('**/Cargo.lock') }}
-
       - name: install rust toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
           targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/checkout@v3
 
       - name: install cargo-leptos
         if: steps.cache-wasm.outputs.cache-hit != 'true'
@@ -54,19 +45,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/cache@v3
-        id: cache-cargo
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       - name: install musl
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get -qq -y install musl-tools
@@ -80,6 +58,10 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           targets: x86_64-unknown-linux-musl aarch64-unknown-linux-musl
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/checkout@v3
 
       - name: install cross
         if: matrix.os == 'ubuntu-latest' && steps.cache-cargo.outputs.cache-hit != 'true'
