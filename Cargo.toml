@@ -2,7 +2,7 @@
 name = "remote_wol"
 authors = ["Valentin Bersier <vbersier@gmail.com>"]
 description = "A utility to wake up a local computer remotely using a web interface."
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 
 [lib]
