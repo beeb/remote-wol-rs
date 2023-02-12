@@ -79,7 +79,7 @@ pub async fn server_start(args: Args) -> Result<()> {
 
     env::set_var("LEPTOS_OUTPUT_NAME", "remote_wol"); // required for constructing the config
     let conf = get_configuration(None).await?;
-    let addr = conf.leptos_options.site_address;
+    let addr = conf.leptos_options.site_addr;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(|cx| view! { cx, <App/> }).await;
     let leptos_options = conf.leptos_options;
@@ -96,7 +96,7 @@ pub async fn server_start(args: Args) -> Result<()> {
                 .layer(HandleErrorLayer::new(|err: BoxError| async move {
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Unhandled error: {}", err),
+                        format!("Unhandled error: {err}"),
                     )
                 }))
                 .layer(BufferLayer::new(1024))
