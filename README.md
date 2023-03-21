@@ -101,7 +101,8 @@ your firewall to the device running `remote-wol-rs`, and then accessing it throu
 You could also use a dynDNS service to have a domain name always pointing to your device's public IP.
 
 Finally, you could use something like [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
-to setup a permanent tunnel to your local webserver through a custom domain.
+to setup a permanent tunnel to your local webserver through a custom domain. In this case, omitting the `--host`
+parameter is advised since the tunnel takes care of forwarding requests locally.
 
 ## Building from source
 
