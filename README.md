@@ -35,7 +35,7 @@ The binary expects at least 2 arguments:
   `127.0.0.1` (only on the loopback interface)
 
 ```bash
-remote_wol -m 01:02:03:04:05:06 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
+remote_wol -m 01:02:03:04:05:06 -p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123 --host
 ```
 
 Alternatively, those parameters can be provided with environment variables,
@@ -74,7 +74,7 @@ The application is available as a [docker image](https://hub.docker.com/r/vbersi
 
 ```bash
 docker run --network="host" -d vbersier/remote-wol-rs:latest -m 01:02:03:04:05:06 \
--p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123
+-p your_l0ng_but_easy_to_remember_passphrase -i 192.168.0.123 --host
 ```
 
 ### Example using docker-compose
@@ -90,6 +90,7 @@ services:
       WOL_IP_ADDRESS: '192.168.0.123'
       WOL_MAC_ADDRESS: 01:02:03:04:05:06
       WOL_PASSPHRASE: your_l0ng_but_easy_to_remember_passphrase
+      WOL_HOST: '0.0.0.0'
 ```
 
 ## Accessing from the internet
