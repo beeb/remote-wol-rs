@@ -1,4 +1,5 @@
 #![allow(unused_variables)] // fixes a glitch warning about `cx` not being used in server functions
+#![allow(clippy::let_with_type_underscore)]
 use std::time::Duration;
 
 use leptos::*;
