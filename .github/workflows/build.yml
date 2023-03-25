@@ -150,7 +150,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: remote_wol v${{ steps.version.outputs.value }}
-          draft: true
           generate_release_notes: true
           files: |
             release/*.tar.gz
