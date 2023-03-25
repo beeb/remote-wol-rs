@@ -1,4 +1,5 @@
 #![allow(unused_variables)] // fixes a glitch warning about `cx` not being used in server functions
+#![allow(clippy::let_with_type_underscore)]
 use std::time::Duration;
 
 use leptos::*;
@@ -174,7 +175,7 @@ fn MainView(cx: Scope) -> impl IntoView {
 
     if cfg!(not(feature = "ssr")) {
         ping.dispatch(Ping {});
-        let _ = set_interval(
+        let _ = set_interval_with_handle(
             move || {
                 ping.dispatch(Ping {});
             },
