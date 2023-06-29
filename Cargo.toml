@@ -67,7 +67,14 @@ bin-features = ["ssr"]
 bin-default-features = false
 lib-features = ["hydrate"]
 lib-default-features = false
+lib-profile-release = "wasm-release"
 
 [profile.release]
 lto = "thin"
 strip = true
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
