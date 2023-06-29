@@ -1,4 +1,9 @@
-use std::{env, net::IpAddr, sync::Arc, time::Duration};
+use std::{
+    env,
+    net::IpAddr,
+    sync::{Arc, OnceLock},
+    time::Duration,
+};
 
 use anyhow::{anyhow, Result};
 use axum::{
@@ -13,7 +18,6 @@ use axum::{
 };
 use leptos::*;
 use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
-use once_cell::sync::OnceCell;
 use rust_embed::RustEmbed;
 use tower::{buffer::BufferLayer, limit::RateLimitLayer, ServiceBuilder};
 use wol::MacAddr;
@@ -26,7 +30,7 @@ pub struct Settings {
     pub ip_address: Option<IpAddr>,
 }
 
-pub static SETTINGS: OnceCell<Settings> = OnceCell::new();
+pub static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
 fn parse_args(args: Args) -> Result<Settings> {
     let port_number = env::var("WOL_PORT")

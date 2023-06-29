@@ -1,6 +1,6 @@
 [package]
 name = "remote_wol"
-authors = ["Valentin Bersier <vbersier@gmail.com>"]
+authors = ["Valentin Bersier <hi@beeb.li>"]
 description = "A utility to wake up a local computer remotely using a web interface."
 version = "0.2.7"
 edition = "2021"
@@ -15,19 +15,18 @@ clap = { version = "4", optional = true, features = ["derive"] }
 console_error_panic_hook = "0.1"
 console_log = "1"
 dotenvy = { version = "0.15", optional = true }
-fastrand = { version = "1", optional = true }
-leptos = { version = "0.2", default-features = false, features = ["serde"] }
-leptos_meta = { version = "0.2", default-features = false }
-leptos_axum = { version = "0.2", optional = true }
-leptos_router = { version = "0.2", default-features = false }
+fastrand = { version = "2", optional = true }
+leptos = { version = "0.3", default-features = false, features = ["serde"] }
+leptos_meta = { version = "0.3", default-features = false }
+leptos_axum = { version = "0.3", optional = true }
+leptos_router = { version = "0.3", default-features = false }
 log = "0.4"
 mime_guess = { version = "2", optional = true }
-once_cell = { version = "1.17.0", optional = true }
 openssl = { version = "0.10", features = ["vendored"], optional = true }
 rust-embed = { version = "6", features = ["include-exclude"], optional = true }
 serde = "1"
 simple_logger = "4"
-surge-ping = { version = "0.7", optional = true }
+surge-ping = { version = "0.8", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 tower = { version = "0.4", features = ["buffer", "limit"], optional = true }
 wasm-bindgen = "0.2"
@@ -43,7 +42,6 @@ ssr = [
   "dep:fastrand",
   "dep:leptos_axum",
   "dep:mime_guess",
-  "dep:once_cell",
   "dep:openssl",
   "dep:rust-embed",
   "dep:surge-ping",
