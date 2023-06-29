@@ -24,7 +24,6 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: install cargo-leptos
-        if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: cargo install --locked cargo-leptos
 
       - name: cargo leptos build
